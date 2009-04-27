@@ -12,8 +12,6 @@ use MooseX::Lexical::Types::TypedScalar;
 
 use namespace::autoclean;
 
-my %REGISTRY;
-
 sub import {
     my ($class, @types) = @_;
 
