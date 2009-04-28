@@ -12,7 +12,7 @@ has type_namespace => (
     is      => 'ro',
     isa     => Str,
     lazy    => 1,
-    default => sub { 'MooseX::Lexical::Types::' },
+    default => sub { 'MooseX::Lexical::Types::TYPE::' },
 );
 
 sub type_package {
