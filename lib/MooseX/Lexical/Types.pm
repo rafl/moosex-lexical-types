@@ -2,6 +2,7 @@ use strict;
 use warnings;
 
 package MooseX::Lexical::Types;
+# ABSTRACT: automatically validate lexicals against Moose type constraints
 
 use Class::MOP;
 use Carp qw/confess/;
@@ -11,6 +12,66 @@ use MooseX::Lexical::Types::TypeDecorator;
 use MooseX::Lexical::Types::TypedScalar;
 
 use namespace::autoclean;
+
+=head1 SYNOPSIS
+
+    use MooseX::Types::Moose qw/Int/;    # import Int type constraint
+    use MooseX::Lexical::Types qw/Int/;  # register Int constraint as lexical type
+
+    my Int $foo;   # declare typed variable
+    $foo = 42;     # works
+    $foo = 'bar';  # fails
+
+=head1 DESCRIPTION
+
+This module allows you to automatically validate values assigned to lexical
+variables using Moose type constraints.
+
+This can be done by importing all the MooseX::Types constraints you you need
+into your namespace and then registering them with MooseX::Lexical::Types.
+After that the type names may be used in declarations of lexical variables via
+C<my>.
+
+Values assigned to variables declared with type constraints will be checked
+against the type constraint.
+
+At runtime the type exports will still return C<Moose::Meta::TypeConstraint>s.
+
+There are a couple of caveats:
+
+=over 4
+
+=item It only works with imported MooseX::Types
+
+Using normal strings as type constraints, like allowed in declaring type
+constraints for attributes with Moose, doesn't work.
+
+=item It only works with scalars
+
+Things like C<my Str @foo> will not work.
+
+=item It only works with simple named types
+
+The type name specified after C<my> needs to be a simple bareword. Things like
+C<my ArrayRef[Str] $foo> will not work. You will need to declare a named for
+every type you want to use in C<my>:
+
+    subtype ArrayOfStr, as ArrayRef[Str];
+
+    my ArrayofStr $foo;
+
+=item Values are only validated on assignment
+
+    my Int $foo;
+
+will not fail, even if C<$foo> now holds the value C<undef>, which wouldn't
+validate against C<Int>. In the future this module might also validate the
+value on the first fetch from the variable to properly fail when using an
+uninitialized variable with a value that doesn't validate.
+
+=back
+
+=cut
 
 sub import {
     my ($class, @types) = @_;
